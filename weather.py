@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import requests, os, re
+from time import sleep as slp
 from bs4 import BeautifulSoup  
 from selenium import webdriver  
 from selenium.webdriver.common.keys import Keys  
@@ -13,28 +16,35 @@ class Weather:
 	cloudy = ""
 	c = 0
 	chance_rain = 0
-	weather_link = ""
+	weather_link = None
 
 	def selenium(url):
+		print("Loading new weather info..")
+		slp(2)
 		chrome_options = Options()  
 		chrome_options.add_argument("--headless")  
-		driver = webdriver.Chrome(executable_path=os.path.abspath("chromedriver"),   chrome_options=chrome_options)  
+		driver = webdriver.Chrome(options=chrome_options)  
 		driver.get(url)
 		try:
-			element = WebDriverWait(driver, 20).until(
-        	EC.presence_of_element_located((By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[2]/div/div[2]/div[1]')))
-			Weather.cloudy = element.text
+			element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[2]/div/div[2]/div[1]')))
+			slp(1)
+			print(str(element))
 			print(element.text)
 			Weather.cloudy = element.text
-			print(Weather.cloudy)
 		except Exception as e:
+			element = ""
 			print("Error finding an element, maybe try again!")
-			print("Error code: "+e.text)
+			print("Or just enter on this site: "+url)
 		finally:
 			driver.close()
+			del chrome_options
+			del driver
+			del element
 
 	def scrap():
 		for i in Weather.cities:
+			if i.strip() == "":
+				continue
 			city = i.replace(' ', '+')
 			
 			#PART I
